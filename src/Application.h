@@ -1,5 +1,6 @@
 #pragma once
 
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <string>
 
@@ -13,13 +14,17 @@ private:
 	uint m_width;
 	uint m_height;
 	bool m_sorted;
+
+	std::vector<int> m_array;
 public:
 	Application(std::string title, uint width, uint height);
 	~Application();
 
 	const int NUM_BARS;
 
-	void Run();
-	void Update();
-	void Render();
+	void run();
+	void update();
+	void render(std::vector<int> array);
+
+	sf::RectangleShape visualize_value(uint index, sf::Color color);
 };
