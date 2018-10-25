@@ -26,9 +26,5 @@ public:
 	void update();
 	void render(std::vector<int> array);
 
-	sf::RectangleShape visualize_value(int index, sf::Color color);
-	
-	std::vector<int> bubble_sort(std::vector<int>& numbers_to_sort);
-	void swap(int firstIndex, int secondIndex);
-
+	sf::RectangleShape visualize_value(uint index, sf::Color color);
 };
