@@ -10,6 +10,8 @@ set(SOURCES
 	src/main.cpp
 	src/Application.h
 	src/Application.cpp
+	src/State.h
+	src/Algorithm.h
 )
 
 include_directories(${SFML_INCLUDE_DIR})
