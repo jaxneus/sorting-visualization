@@ -7,36 +7,34 @@
 #include <thread>
 
 Application::Application(std::string title, uint width, uint height) 
-	: m_title(title), m_width(width), m_height(height), NUM_BARS(width/5) {
-
+	: m_title(title), m_width(width), m_height(height), NUM_BARS(width/5), m_array(State()) {
 }
 
 Application::~Application() {}
 
 void Application::init() {
-	m_array = std::vector<int>(NUM_BARS);
+	BubbleSort algorthim = BubbleSort();
+	printf("Running algorthim: %s \n", algorthim.name(m_state).c_str());
 
-	state.anim.time = 0.0;
-	state.anim.speed = 0;
-	state.anim.paused = true;
-	state.anim.array = m_array;
-	state.anim.colors = std::vector<sf::Color>(m_array.size());
+	m_state.anim.time = 0.0;
+	m_state.anim.speed = 0;
+	m_state.anim.paused = false;
+	m_state.anim.array = std::vector<int>(NUM_BARS);
+	m_state.anim.colors = std::vector<sf::Color>(m_state.anim.array.size());
+
+	Array m_array = Array(m_state);
 
 	// Populate and shuffle the array
-	for (int i = 0; i < NUM_BARS; i++)
+	for (int i = 0; i < NUM_BARS-1; i++)
 		m_array[i] = (rand() % 10) + 1;
 
-	std::random_shuffle(m_array.begin(), m_array.end());
+	std::random_shuffle(m_state.anim.array.begin(), m_state.anim.array.end());
 
 	// Print the arrays contents before sort
-	for (auto i = m_array.begin(); i != m_array.end(); ++i)
-		std::cout << *i << ' ';
-	printf("\n");
+	m_array.dump();
 
-
-	BubbleSort alg = BubbleSort();
-	printf("Running algorthim: %s \n", alg.name(state).c_str());
-	alg.sort(state, m_array);
+	m_array.wait(50);
+	algorthim.sort(m_array);
 }
 
 void Application::run() {
@@ -44,49 +42,56 @@ void Application::run() {
 
 	m_sorted = false;
 	while (m_window.isOpen()) {
-		sf::Event event;
-		while (m_window.pollEvent(event)) {
-			if (event.type == sf::Event::Closed)
-				m_window.close();
-		}
-		
-		m_window.clear();
+		input();
 
-		update();
-		render(m_array);
+		while (!m_state.anim.paused) {
+			sf::Event event;
+			while (m_window.pollEvent(event)) {
+				if (event.type == sf::Event::Closed)
+					m_window.close();
+			}
 
-		for (int i = 0; i < NUM_BARS; i++) {
-			m_window.draw(visualize_value(i, sf::Color::White));
-		}
+			m_window.clear();
 
-		if (!m_sorted) {
-
-			printf("sorted: \n");
-			for (auto i = m_array.begin(); i != m_array.end(); ++i)
-				std::cout << *i << ' ';
-			printf("\n");
+			update();
+			render();
 
 			for (int i = 0; i < NUM_BARS; i++) {
 				m_window.draw(visualize_value(i, sf::Color::White));
-
-				m_window.display();
-				std::this_thread::sleep_for(std::chrono::milliseconds(3));
 			}
-		}
 
-		m_window.display();
+			if (!m_sorted) {
+
+				printf("sorted: \n");
+				for (auto i = m_state.anim.array.begin(); i != m_state.anim.array.end(); ++i)
+					std::cout << *i << ' ';
+				printf("\n");
+
+				for (int i = 0; i < NUM_BARS; i++) {
+					m_window.draw(visualize_value(i, sf::Color::White));
+
+					m_window.display();
+					std::this_thread::sleep_for(std::chrono::milliseconds(3));
+				}
+
+				m_sorted = true;
+				break;
+			}
+
+			m_window.display();
+		}
 	}
 }
 
 void Application::update() {}
-void Application::render(std::vector<int> array) {}
+void Application::render() {}
 
 void Application::input() {
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-		std::lock_guard<std::mutex> lock(state.pause);
-		state.anim.paused = !state.anim.paused;
+		std::lock_guard<std::mutex> lock(m_state.pause);
+		m_state.anim.paused = !m_state.anim.paused;
 
-		state.cv.notify_one();
+		m_state.cv.notify_one();
 	}
 }
 

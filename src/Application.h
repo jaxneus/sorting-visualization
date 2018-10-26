@@ -5,6 +5,7 @@
 #include <string>
 
 #include "State.h"
+#include "Array.h"
 
 typedef unsigned int uint;
 
@@ -17,8 +18,8 @@ private:
 	uint m_height;
 	bool m_sorted;
 
-	std::vector<int> m_array;
-	State state;
+	State m_state;
+	Array m_array;
 public:
 	Application(std::string title, uint width, uint height);
 	~Application();
@@ -26,11 +27,12 @@ public:
 	const int NUM_BARS;
 
 	void init();
-
 	void run();
-	void update();
-	void render(std::vector<int> array);
+
 	void input();
+
+	void update();
+	void render();
 
 	sf::RectangleShape visualize_value(int index, sf::Color color);
 };
