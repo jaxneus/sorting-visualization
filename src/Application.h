@@ -19,7 +19,6 @@ private:
 	bool m_sorted;
 
 	State m_state;
-	Array m_array;
 public:
 	Application(std::string title, uint width, uint height);
 	~Application();
@@ -31,7 +30,7 @@ public:
 
 	void input();
 
-	void update();
+	void update(double dt);
 	void render();
 
 	sf::RectangleShape visualize_value(int index, sf::Color color);

@@ -15,10 +15,13 @@ public:
 	int& operator[](size_t index) { return m_state.anim.array[index]; }
 
 	void wait(int ms) {
+		printf("%d is sleep! \n", std::this_thread::get_id());
 		Sleep(ms);
 
 		while (m_state.anim.paused) {
 			std::unique_lock<std::mutex> lock(m_state.pause);
+			printf("paused! \n");
+
 			m_state.cv.wait(lock);
 			lock.unlock();
 		}
