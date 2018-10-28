@@ -7,6 +7,7 @@
 
 #include "State.h"
 #include "Array.h"
+#include "Options.h"
 
 typedef unsigned int uint;
 
@@ -25,7 +26,7 @@ public:
 
 	const int NUM_BARS;
 
-	void init();
+	void init(Options& options);
 	void run();
 
 	void input();

@@ -2,6 +2,7 @@
 
 #include "State.h"
 #include "Array.h"
+#include "Options.h"
 
 #include <vector>
 #include <string>
@@ -15,13 +16,13 @@ public:
 class BubbleSort : public Algorithm {
 public:
 	bool sort(Array& array) override {
-		unsigned int size_of_array = array.len()-1;
+		unsigned int size_of_array = array.len() - 1;
 
 		printf("Starting a sort. \n");
 		for (unsigned int i = 0; i < size_of_array; i++) {
 			bool swapped = false;
 			for (unsigned int j = 0; j < size_of_array; j++) {
-				if (array[j] > array[j+1]) {
+				if (array[j] > array[j + 1]) {
 					array.swap(j, j + 1);
 					swapped = true;
 				}
