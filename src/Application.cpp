@@ -17,6 +17,8 @@ std::shared_ptr<Algorithm> getClassByType(AlgorithmType type) {
 	switch (type) {
 	case AlgorithmType::bubble_sort:
 		return std::shared_ptr<Algorithm>(new BubbleSort());
+	case AlgorithmType::selection_sort:
+		return std::shared_ptr<Algorithm>(new SelectionSort());
 	}
 }
 

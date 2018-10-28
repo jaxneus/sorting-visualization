@@ -4,7 +4,7 @@ int main() {
 	Application application("sorting-visualization", 1280, 720);
 
 	Options options;
-	options.algorithmType = AlgorithmType::bubble_sort;
+	options.algorithmType = AlgorithmType::selection_sort;
 	options.order = Order::Shuffled;
 	application.init(options);
 

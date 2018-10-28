@@ -6,7 +6,8 @@ struct Options {
 };
 
 enum AlgorithmType {
-	bubble_sort
+	bubble_sort,
+	selection_sort
 };
 
 enum Order {
