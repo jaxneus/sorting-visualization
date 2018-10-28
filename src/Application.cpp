@@ -15,46 +15,46 @@ Application::Application(std::string title, uint width, uint height)
 
 Application::~Application() {}
 
-void sortTask(Algorithm& alg, Array& arr) {
-	// Print the arrays contents before sort
-	arr.dump();
-
-	arr.wait(50);
-	if (alg.sort(arr)) {
-		printf("%s has finished. \n", alg.name().c_str());
-		arr.dump();
-
-		return;
-	}
-}
-
 /**
  *   -- TODO LIST --
  *  Store each array access step that way we can see history of the sort.
 **/
 
+bool m_sorted = false;
 void Application::init() {
 	BubbleSort algorthim = BubbleSort();
 	printf("Running algorthim: %s \n", algorthim.name().c_str());
 
 	m_state.anim.time = 0.0;
-	m_state.anim.speed = 0;
+	m_state.anim.speed = 1;
 	m_state.anim.paused = false;
 	m_state.anim.array = std::vector<int>(NUM_BARS);
-	m_state.anim.colors = std::vector<sf::Color>(m_state.anim.array.size());
+	m_state.anim.colors = std::vector<sf::Color>(NUM_BARS);
 
-	std::vector<int>& arr = m_state.anim.array;
+	std::vector<int>& array = m_state.anim.array;
+	std::vector<sf::Color>& colors = m_state.anim.colors;
 
 	// Populate and shuffle the array
-	for (int i = 0; i < NUM_BARS - 1; i++)
-		arr[i] = (rand() % 10) + 1;
+	for (int i = 0; i < NUM_BARS; i++) {
+		array[i] = i;
+		colors[i] = sf::Color::White;
+	}
+	std::random_shuffle(array.begin(), array.end());
 
-	std::random_shuffle(arr.begin(), arr.end());
+	Array arr = Array(m_state);
+	std::thread al([&algorthim, &arr] {
+		// Print the arrays contents before sort
+		arr.dump();
 
-	std::thread al(sortTask, algorthim, Array(m_state));
+		arr.wait(250 * 5);
+		if (algorthim.sort(arr)) {
+			m_sorted = true;
 
-	run(); // need to execute this here or else we block before running the window.
+			return;
+		}
+	});
 
+	run();
 	al.join();
 }
 
@@ -63,69 +63,58 @@ void Application::run() {
 	ImGui::SFML::Init(m_window);
 
 	sf::Color bgColor;
-
 	float color[3] = { 0.f, 0.f, 0.f };
 
 	m_sorted = false;
 
-	double t = 0.0;
-	const double dt = 0.0;
-
-	auto ct = std::chrono::duration_cast<std::chrono::milliseconds>
-		(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
-	double accumulator = 0.0;
-
-	m_window.resetGLStates();
+	sf::Clock deltaClock;
+	auto beginTime = std::chrono::high_resolution_clock::now();
 	while (m_window.isOpen()) {
-		auto now = std::chrono::duration_cast<std::chrono::milliseconds>
-			(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
-		double frameTime = now - ct;
-
-		accumulator += frameTime;
+		auto dt = deltaClock.restart().asSeconds();
+		auto now = std::chrono::high_resolution_clock::now();
 
 		input();
-		m_window.clear();
 
-		for (int i = 0; i < NUM_BARS; i++) {
-			m_window.draw(visualize_value(i, sf::Color::White));
-		}
+		update(dt);
+		render(m_window);
 
-		while (!m_state.anim.paused) {
-			while (accumulator >= dt) {
-				// update()
+		ImGui::SFML::Update(m_window, sf::milliseconds(dt));
 
-				accumulator -= dt;
-				t += dt;
-			}
+		ImGui::Begin("Sample window"); // begin window
 
-			ImGui::SFML::Update(m_window, sf::milliseconds(dt));
+		ImGui::Button("Look at this pretty button");
 
-			ImGui::Begin("Sample window"); // begin window
-
-			ImGui::Button("Look at this pretty button");
-
-			ImGui::End();
-			ImGui::SFML::Render(m_window);
-
-			// render()
-			if (!m_sorted) {
-				for (int i = 0; i < NUM_BARS; i++) {
-					m_window.draw(visualize_value(i, sf::Color::White));
-
-					m_window.display();
-					std::this_thread::sleep_for(std::chrono::milliseconds(3));
-				}
-			}
-		}
-
-		m_window.display();
+		ImGui::End();
+		ImGui::SFML::Render(m_window);
 	}
 
 	ImGui::SFML::Shutdown();
+	return;
 }
 
-void Application::update(double dt) {}
-void Application::render() {}
+void Application::update(double dt) {
+	auto anim = m_state.anim;
+
+	if (!anim.paused)
+		anim.time += dt * anim.speed;
+}
+
+void Application::render(sf::RenderWindow& window) {
+	window.clear();
+
+	for (int i = 0; i < m_state.anim.array.size(); i++) {
+		window.draw(visualize_value(i, sf::Color::White));
+	}
+
+	if (!m_sorted) {
+		for (int i = 0; i < m_state.anim.array.size(); i++) {
+			window.draw(visualize_value(i, m_state.anim.colors[i]));
+			window.display();
+		}
+	}
+
+	window.display();
+}
 
 void Application::input() {
 	sf::Event event;
@@ -146,14 +135,14 @@ void Application::input() {
 }
 
 sf::RectangleShape Application::visualize_value(int index, sf::Color color) {
-	int value = index;
+	int value = m_state.anim.array[index];
 
 	auto w = 5;
 	auto h = value * m_height / NUM_BARS;
-	auto x = value + 5 * value;
+	auto x = index * w;
 	auto y = m_height - h;
 
-	sf::RectangleShape rec(sf::Vector2f(w, h));
+	sf::RectangleShape rec(sf::Vector2f(w-1, h));
 	rec.setPosition(sf::Vector2f(x, y));
 	rec.setFillColor(color);
 

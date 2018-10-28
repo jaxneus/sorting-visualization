@@ -5,7 +5,7 @@
 #include <condition_variable>
 
 struct AnimationState {
-	int time;
+	double time;
 	int speed;
 	bool paused;
 	std::vector<int> array;

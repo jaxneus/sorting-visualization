@@ -28,16 +28,29 @@ public:
 	};
 
 	int len() {
-		return m_state.anim.array.size()-1;
+		return m_state.anim.array.size();
 	}
 
 	void swap(int firstIndex, int secondIndex) {
-		auto array = m_state.anim.array;
+		auto& array = m_state.anim.array;
+		auto& colors = m_state.anim.colors;
 
 		int temp = array[firstIndex];
 		array[firstIndex] = array[secondIndex];
 		array[secondIndex] = temp;
+
+		colors[firstIndex] = sf::Color(255, 15, 15);
+		colors[secondIndex] = sf::Color(255, 15, 15);
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(5));
+
+		resetColor(firstIndex);
+		resetColor(secondIndex);
 	};
+
+	void resetColor(int index) {
+		m_state.anim.colors[index] = sf::Color::White;
+	}
 
 	void dump() {
 		for (auto i = m_state.anim.array.begin(); i != m_state.anim.array.end(); ++i)

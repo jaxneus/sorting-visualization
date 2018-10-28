@@ -3,6 +3,7 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <string>
+#include <atomic>
 
 #include "State.h"
 #include "Array.h"
@@ -16,7 +17,6 @@ private:
 	std::string m_title;
 	uint m_width;
 	uint m_height;
-	bool m_sorted;
 
 	State m_state;
 public:
@@ -31,7 +31,7 @@ public:
 	void input();
 
 	void update(double dt);
-	void render();
+	void render(sf::RenderWindow& window);
 
 	sf::RectangleShape visualize_value(int index, sf::Color color);
 };

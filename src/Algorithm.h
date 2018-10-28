@@ -15,7 +15,7 @@ public:
 class BubbleSort : public Algorithm {
 public:
 	bool sort(Array& array) override {
-		unsigned int size_of_array = array.len();
+		unsigned int size_of_array = array.len()-1;
 
 		printf("Starting a sort. \n");
 		for (unsigned int i = 0; i < size_of_array; i++) {
@@ -31,6 +31,7 @@ public:
 		}
 
 		printf("Finished a sort. \n");
+		array.dump();
 		return true;
 	};
 
