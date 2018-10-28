@@ -39,8 +39,8 @@ public:
 		array[firstIndex] = array[secondIndex];
 		array[secondIndex] = temp;
 
-		colors[firstIndex] = sf::Color(255, 15, 15);
-		colors[secondIndex] = sf::Color(255, 15, 15);
+		colors[firstIndex] = sf::Color(255, 0, 0);
+		colors[secondIndex] = sf::Color(255, 0, 0);
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(5));
 

@@ -5,12 +5,15 @@
 #include "imgui/imgui-sfml.h"
 
 #include <SFML/Window/Event.hpp>
+#include <SFML/OpenGL.hpp>
 #include <iostream>
 #include <chrono>
 #include <thread>
 
+#define BAR_WIDTH 8
+
 Application::Application(std::string title, uint width, uint height)
-	: m_title(title), m_width(width), m_height(height), NUM_BARS(width / 5) {
+	: m_title(title), m_width(width), m_height(height), NUM_BARS(width / BAR_WIDTH) {
 }
 
 Application::~Application() {}
@@ -62,30 +65,18 @@ void Application::run() {
 	sf::RenderWindow m_window(sf::VideoMode(m_width, m_height), m_title);
 	ImGui::SFML::Init(m_window);
 
-	sf::Color bgColor;
-	float color[3] = { 0.f, 0.f, 0.f };
-
-	m_sorted = false;
-
 	sf::Clock deltaClock;
 	auto beginTime = std::chrono::high_resolution_clock::now();
+
 	while (m_window.isOpen()) {
 		auto dt = deltaClock.restart().asSeconds();
 		auto now = std::chrono::high_resolution_clock::now();
 
 		input();
-
 		update(dt);
-		render(m_window);
 
 		ImGui::SFML::Update(m_window, sf::milliseconds(dt));
-
-		ImGui::Begin("Sample window"); // begin window
-
-		ImGui::Button("Look at this pretty button");
-
-		ImGui::End();
-		ImGui::SFML::Render(m_window);
+		render(m_window);
 	}
 
 	ImGui::SFML::Shutdown();
@@ -106,12 +97,21 @@ void Application::render(sf::RenderWindow& window) {
 		window.draw(visualize_value(i, sf::Color::White));
 	}
 
+	// Overlay for array acceses
 	if (!m_sorted) {
 		for (int i = 0; i < m_state.anim.array.size(); i++) {
 			window.draw(visualize_value(i, m_state.anim.colors[i]));
 			window.display();
 		}
 	}
+
+	// GUI
+	ImGui::Begin("Settings (imgui)"); // begin window
+
+	ImGui::Button("Pretty button!");
+
+	ImGui::End();
+	ImGui::SFML::Render(window);
 
 	window.display();
 }
@@ -137,12 +137,12 @@ void Application::input() {
 sf::RectangleShape Application::visualize_value(int index, sf::Color color) {
 	int value = m_state.anim.array[index];
 
-	auto w = 5;
+	auto w = BAR_WIDTH;
 	auto h = value * m_height / NUM_BARS;
 	auto x = index * w;
 	auto y = m_height - h;
 
-	sf::RectangleShape rec(sf::Vector2f(w-1, h));
+	sf::RectangleShape rec(sf::Vector2f(w - 1, h));
 	rec.setPosition(sf::Vector2f(x, y));
 	rec.setFillColor(color);
 
